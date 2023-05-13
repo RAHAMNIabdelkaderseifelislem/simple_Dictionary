@@ -10,7 +10,7 @@
         android:orientation="horizontal">
 
 
-    <EditText
+    <AutoCompleteTextView
         android:id="@+id/searchEditText"
         android:layout_width="280dp"
         android:layout_height="wrap_content"

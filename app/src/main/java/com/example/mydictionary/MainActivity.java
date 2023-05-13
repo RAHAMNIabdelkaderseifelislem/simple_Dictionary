@@ -1,46 +1,75 @@
 package com.example.mydictionary;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.HashMap;
-import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    private HashMap <String,String> words;
-    private EditText searchText;
+    private HashMap<String, String> words;
+
+    private AutoCompleteTextView searchEditText;
     private Button searchButton;
     private TextView wordTitle;
     private TextView definitionText;
+
+    @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        initDictionary();
-        searchText = findViewById(R.id.searchEditText);
+        searchEditText = findViewById(R.id.searchEditText);
         searchButton = findViewById(R.id.searchButton);
         wordTitle = findViewById(R.id.wordTitle);
         definitionText = findViewById(R.id.definitionText);
 
+        initDictionary();
+        // Add more word-definition pairs as needed
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line, words.keySet().toArray(new String[0]));
+        searchEditText.setAdapter(adapter);
+
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String word = searchText.getText().toString().toLowerCase();
+                String word = searchEditText.getText().toString().toLowerCase();
                 String definition = searchWord(word);
+                if (definition != null) {
+                    wordTitle.setText(word);
+                    definitionText.setText(definition);
+                } else {
+                    wordTitle.setText("Word not found");
+                    definitionText.setText("");
+                }
+            }
+        });
 
-                wordTitle.setText(word);
-                definitionText.setText(definition);
+        searchEditText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String selectedWord = (String) parent.getItemAtPosition(position);
+                String definition = searchWord(selectedWord);
+                if (definition != null) {
+                    wordTitle.setText(selectedWord);
+                    definitionText.setText(definition);
+                } else {
+                    wordTitle.setText("Word not found");
+                    definitionText.setText("");
+                }
             }
         });
     }
-
     private void initDictionary(){
         words = new HashMap<>();
         // adding words
@@ -153,9 +182,8 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private String searchWord(String word){
-        if (words.get(word)!=null)
-            return words.get(word);
-        return "le mot "+word+" est introuvable";
+
+    private String searchWord(String word) {
+        return words.get(word);
     }
 }
